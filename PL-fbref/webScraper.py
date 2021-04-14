@@ -50,7 +50,7 @@ def getTable(squadStat,mainSoup,idDict):
     #print(columnList)
         
     data = []
-    for i in range(0,20):
+    for i in range(0,len(soup.find("tbody").find_all('tr'))):
         temp = []
         for child in soup.find("tbody").find_all('tr')[i].children:
                 temp.append(child.text)
@@ -92,8 +92,9 @@ for teamLinks in teamSoup.find("table" , attrs={"id":teamIdDict["standard"]}).fi
     teamDict[teamLinks.string] = 'https://fbref.com'+teamLinks.get('href')
 #print(teamDict)
 
-pl_player_shooting = pd.DataFrame()
+pl_player_passing = pd.DataFrame()
 for temp in teamDict:
-    pl_player_shooting = pl_player_shooting.append(getTable("shooting",getSoup(teamDict[temp])
-              ,playerIdDict))
-
+    print('Collecting data for '+temp+' .....')
+    dummy = getTable("passing",getSoup(teamDict[temp]),playerIdDict)
+    dummy['Team'] = temp
+    pl_player_passing = pl_player_passing.append(dummy)
