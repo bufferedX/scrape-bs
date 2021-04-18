@@ -1,1 +1,1 @@
-web: gunicorn PL-fbref:main
+web: gunicorn PL-fbref.main
