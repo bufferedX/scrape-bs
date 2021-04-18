@@ -6,7 +6,7 @@ Created on Sat Apr 17 18:02:52 2021
 """
 from flask import Flask,make_response,Response
 from io import StringIO
-import .webScraper
+from . import webScraper
 app = Flask(__name__)
 
 legend = '''Currently this app is under development.<br/> Releasing beta version 0.0.1 of this
