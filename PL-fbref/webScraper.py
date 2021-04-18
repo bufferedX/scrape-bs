@@ -84,7 +84,8 @@ playerSoup = getSoup('https://fbref.com/en/comps/9/Premier-League-Stats#all_stat
 
 #################################################################################
 
-pl2020_21_shooting = getTable("shooting", teamSoup, teamIdDict)
+def pl_all(stat):
+    return getTable(stat, teamSoup, teamIdDict)
 
 teamList=[]
 teamDict={}
@@ -92,9 +93,9 @@ for teamLinks in teamSoup.find("table" , attrs={"id":teamIdDict["standard"]}).fi
     teamDict[teamLinks.string] = 'https://fbref.com'+teamLinks.get('href')
 #print(teamDict)
 
-pl_player_passing = pd.DataFrame()
-for temp in teamDict:
-    print('Collecting data for '+temp+' .....')
-    dummy = getTable("passing",getSoup(teamDict[temp]),playerIdDict)
-    dummy['Team'] = temp
-    pl_player_passing = pl_player_passing.append(dummy)
+#pl_player_passing = pd.DataFrame()
+#for temp in teamDict:
+#    print('Collecting data for '+temp+' .....')
+#    dummy = getTable("passing",getSoup(teamDict[temp]),playerIdDict)
+#    dummy['Team'] = temp
+#    pl_player_passing = pl_player_passing.append(dummy)
