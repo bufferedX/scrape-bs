@@ -20,7 +20,7 @@ def calcColspan(squadStat,text,colspan):
     elif squadStat == "keeper":
       return int(colspan)
     else:
-        return int(colspan)+1 if text == '' and colspan in ['2','4'] else int(colspan)
+        return int(colspan)
 
 def getTable(squadStat,mainSoup,idDict):
     soup = mainSoup.find("table" , attrs={"id":idDict[squadStat]})
@@ -33,13 +33,13 @@ def getTable(squadStat,mainSoup,idDict):
                                                                                     value.text,
                                                                                     value.get('colspan'))
         itr+=1
-    #print(parentColumnDict)
+    print(parentColumnDict)
     
     for child in soup.find_all("tr")[1]:
         for th in child:
             if th != ' ':
                 columnList.append(th)
-    #print(columnList)
+    print(columnList)
     
     
     iterCount = 0
@@ -47,7 +47,7 @@ def getTable(squadStat,mainSoup,idDict):
         for i in range(iterCount,iterCount+parentColumnDict[key]):
             columnList[i] = key+"_"+columnList[i]
         iterCount += parentColumnDict[key]
-    #print(columnList)
+    print(columnList)
         
     data = []
     for i in range(0,len(soup.find("tbody").find_all('tr'))):
@@ -87,10 +87,10 @@ playerSoup = getSoup('https://fbref.com/en/comps/9/Premier-League-Stats#all_stat
 def pl_all(stat):
     return getTable(stat, teamSoup, teamIdDict)
 
-teamList=[]
-teamDict={}
-for teamLinks in teamSoup.find("table" , attrs={"id":teamIdDict["standard"]}).find_all('a'):
-    teamDict[teamLinks.string] = 'https://fbref.com'+teamLinks.get('href')
+# teamList=[]
+# teamDict={}
+# for teamLinks in teamSoup.find("table" , attrs={"id":teamIdDict["standard"]}).find_all('a'):
+#     teamDict[teamLinks.string] = 'https://fbref.com'+teamLinks.get('href')
 #print(teamDict)
 
 #pl_player_passing = pd.DataFrame()

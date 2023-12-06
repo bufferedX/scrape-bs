@@ -6,7 +6,7 @@ Created on Sat Apr 17 18:02:52 2021
 """
 from flask import Flask,make_response,Response
 from io import StringIO
-from . import webScraper
+import webScraper
 app = Flask(__name__)
 
 legend = '''Currently this app is under development.<br/> Releasing beta version 0.0.1 of this
@@ -40,12 +40,72 @@ Thank you :)
 def index():
     return legend
 
+stat = "standard"
 @app.route("/<stat>")
-def getCsv(stat):
+def getCsv_standard(stat):
     output = StringIO()
     webScraper.pl_all(stat).to_csv(output,index=False)
     return Response(output.getvalue(), mimetype="text/csv",headers={"Content-disposition":
                  "attachment; filename="+stat+".csv"})
 
+stat = "passing"
+@app.route("/<stat>")
+def getCsv_passing(stat):
+    output = StringIO()
+    webScraper.pl_all(stat).to_csv(output,index=False)
+    return Response(output.getvalue(), mimetype="text/csv",headers={"Content-disposition":
+                 "attachment; filename="+stat+".csv"})
+        
+        
+stat = "defense"
+@app.route("/<stat>")
+def getCsv_defense(stat):
+    output = StringIO()
+    webScraper.pl_all(stat).to_csv(output,index=False)
+    return Response(output.getvalue(), mimetype="text/csv",headers={"Content-disposition":
+                 "attachment; filename="+stat+".csv"})
+        
+stat = "possession"
+@app.route("/<stat>")
+def getCsv_poss(stat):
+    output = StringIO()
+    webScraper.pl_all(stat).to_csv(output,index=False)
+    return Response(output.getvalue(), mimetype="text/csv",headers={"Content-disposition":
+                 "attachment; filename="+stat+".csv"})
+        
+stat = "shooting"
+@app.route("/<stat>")
+def getCsv_shooting(stat):
+    output = StringIO()
+    webScraper.pl_all(stat).to_csv(output,index=False)
+    return Response(output.getvalue(), mimetype="text/csv",headers={"Content-disposition":
+                 "attachment; filename="+stat+".csv"})
+
+stat = "sca"
+@app.route("/<stat>")
+def getCsv_sca(stat):
+    output = StringIO()
+    webScraper.pl_all(stat).to_csv(output,index=False)
+    return Response(output.getvalue(), mimetype="text/csv",headers={"Content-disposition":
+                 "attachment; filename="+stat+".csv"})
+
+        
+stat = "gca"
+@app.route("/<stat>")
+def getCsv_gca(stat):
+    output = StringIO()
+    webScraper.pl_all(stat).to_csv(output,index=False)
+    return Response(output.getvalue(), mimetype="text/csv",headers={"Content-disposition":
+                 "attachment; filename="+stat+".csv"})
+
+        
+stat = "keeper"
+@app.route("/<stat>")
+def getCsv_keeper(stat):
+    output = StringIO()
+    webScraper.pl_all(stat).to_csv(output,index=False)
+    return Response(output.getvalue(), mimetype="text/csv",headers={"Content-disposition":
+                 "attachment; filename="+stat+".csv"})
+        
 if __name__ == "__main__":
     app.run()
