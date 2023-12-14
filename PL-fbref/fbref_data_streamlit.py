@@ -4,7 +4,7 @@ Created on Wed Dec  6 17:57:06 2023
 
 @author: basus
 """
-
+import os
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -58,15 +58,18 @@ def tableViz(df_old):
     #https://logos-world.net/premier-league-team-logos-top-epl-logos/   
     
     flag_paths = list(Path("logos").glob("*.png"))
-    country_to_flagpath = {p.stem: p for p in flag_paths}
-    df.insert(0, "Flag", df["Team"].apply(lambda x: country_to_flagpath.get(x)))
+    country_to_flagpath = {str(p.stem): str(p) for p in flag_paths}
+    df['Team'] = df['Team'].astype('str')
+    df.insert(0, "Flag", df["Team"].apply(lambda x: country_to_flagpath.get(x)).fillna("XYZ"))
     df = df.set_index("Team")
-
+    numeric_cols = list(df.columns[2:])
+    df[numeric_cols] = df[numeric_cols].apply(pd.to_numeric , errors = 'coerce')
+    
     cmap = LinearSegmentedColormap.from_list(
-    name="bugw", colors=["#ffffff", "#f2fbd2", "#c9ecb4", "#93d3ab", "#35b0ab"], N=256
+    name="bugw", colors=["#ffffff", "#f2fbd2", "#c9ecb4", "#93d3ab", "#35b0ab"], N=256,
     )
     
-    actual_cols = list(df.columns[2:7])
+    actual_cols = list(df.columns[2:8])
     expected_cols = list(df.columns[8:])
     
     
@@ -99,7 +102,7 @@ def tableViz(df_old):
                 "ha": "center",
                 "bbox": {"boxstyle": "circle", "pad": 0.35},
             },
-            #cmap=normed_cmap(df["Goals"], cmap=matplotlib.cm.PiYG, num_stds=2.5),
+            cmap=normed_cmap(df["Goals"], cmap=matplotlib.cm.PiYG, num_stds=2.5),
             group="Actual Performance",
             border="left",
         ),
@@ -110,7 +113,7 @@ def tableViz(df_old):
                 "ha": "center",
                 "bbox": {"boxstyle": "circle", "pad": 0.35},
             },
-            #cmap=normed_cmap(df["Assists"], cmap=matplotlib.cm.PiYG_r, num_stds=2.5),
+            cmap=normed_cmap(df["Assists"], cmap=matplotlib.cm.PiYG_r, num_stds=2.5),
             group="Actual Performance",
         ),
     ]
@@ -128,7 +131,7 @@ def tableViz(df_old):
             name=expected_cols[0],
             title=expected_cols[0].replace(" ", "\n", 1),
             #formatter=decimal_to_percent,
-            cmap=cmap,
+            cmap=normed_cmap(df["Goals"], cmap=matplotlib.cm.PiYG, num_stds=2.5),
             group="Expected Performance",
             border="left",
         )
@@ -138,7 +141,7 @@ def tableViz(df_old):
             name=col,
             title=col.replace(" ", "\n", 1),
             #formatter=decimal_to_percent,
-            cmap=cmap,
+            cmap=normed_cmap(df["Goals"], cmap=matplotlib.cm.PiYG, num_stds=2.5),
             group="Expected Performance",
         )
         for col in expected_cols[1:]
