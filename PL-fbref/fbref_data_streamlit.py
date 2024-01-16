@@ -20,58 +20,134 @@ from plottable.cmap import normed_cmap
 from plottable.formatters import decimal_to_percent
 from plottable.plots import circled_image # image
 
+eventType = 0
 
-def tableViz(df_old):    
-    cols = [
-        "_0_Squad",
-        "PlayingTime_1_MP",
-        "Performance_2_Gls",
-        "Performance_2_Ast",
-        "Performance_2_G+A",
-        "Performance_2_PK",
-        "Performance_2_CrdY",
-        "Performance_2_CrdR",
-        "Expected_3_xG",
-        "Expected_3_npxG",
-        "Expected_3_xAG",
-    ]
-    
-    df = df_old[cols].copy()
-    
-    colnames = [
-        "Team",
-        "Matches Played",
-        "Goals",
-        "Assists",
-        "G+A",
-        "Penalties scored",
-        "Yellow Cards",
-        "Red Cards",
-        "xG",
-        "Non-penalty xG",
-        "xG-Assisted Goals",
-    ]
+@st.cache_data
+def loadData(season):
+    df = webScraper.pl_all("standard",season)   
+    df['Season'] = season
+    return df
 
-    col_to_name = dict(zip(cols, colnames))
-    df = df.rename(col_to_name, axis=1)
+def footballSeasons():
+    seasonList = []
+    for i in range(2023,2017,-1):
+        dummy = 0
+        dummy = i+1
+        seasonName = str(i) + "-" +  str(dummy)
+        seasonList.append(seasonName)
+    return seasonList
+
+def createDataframe(df_old,season,eventType):
+    if eventType == 0:
+        cols = [
+            "_0_Squad",
+            "PlayingTime_1_MP",
+            "Performance_2_Gls",
+            "Performance_2_Ast",
+            "Performance_2_G+A",
+            "Performance_2_PK",
+            "Performance_2_CrdY",
+            "Performance_2_CrdR",
+            "Expected_3_xG",
+            "Expected_3_npxG",
+            "Expected_3_xAG",
+        ]
+        
+        df = df_old[cols].copy()
+        
+        colnames = [
+            "Team",
+            "Matches Played",
+            "Goals",
+            "Assists",
+            "G+A",
+            "Penalties scored",
+            "Yellow Cards",
+            "Red Cards",
+            "xG",
+            "Non-penalty xG",
+            "xG-Assisted Goals",
+        ]
+
+        col_to_name = dict(zip(cols, colnames))
+        df = df.rename(col_to_name, axis=1)
+        
+        #https://logos-world.net/premier-league-team-logos-top-epl-logos/   
+        #https://www.iconarchive.com/show/english-football-club-icons-by-giannis-zographos.1.html
+        
+        flag_paths = list(Path("logos").glob("*.png"))
+        country_to_flagpath = {str(p.stem): str(p) for p in flag_paths}
+        df['Team'] = df['Team'].astype('str')
+        df.insert(0, "Flag", df["Team"].apply(lambda x: country_to_flagpath.get(x)).fillna("XYZ"))
+        df = df.set_index("Team")
+        numeric_cols = list(df.columns[2:])
+        df[numeric_cols] = df[numeric_cols].apply(pd.to_numeric , errors = 'coerce')
+        
+        actual_cols = list(df.columns[2:8])
+        expected_cols = list(df.columns[8:])
+        
+        return actual_cols, expected_cols , df,country_to_flagpath
     
-    #https://logos-world.net/premier-league-team-logos-top-epl-logos/   
-    
-    flag_paths = list(Path("logos").glob("*.png"))
-    country_to_flagpath = {str(p.stem): str(p) for p in flag_paths}
-    df['Team'] = df['Team'].astype('str')
-    df.insert(0, "Flag", df["Team"].apply(lambda x: country_to_flagpath.get(x)).fillna("XYZ"))
-    df = df.set_index("Team")
-    numeric_cols = list(df.columns[2:])
-    df[numeric_cols] = df[numeric_cols].apply(pd.to_numeric , errors = 'coerce')
+    else:
+        cols = [
+            "_0_Squad",
+            "Season",
+            "PlayingTime_1_MP",
+            "Performance_2_Gls",
+            "Performance_2_Ast",
+            "Performance_2_G+A",
+            "Performance_2_PK",
+            "Performance_2_CrdY",
+            "Performance_2_CrdR",
+            "Expected_3_xG",
+            "Expected_3_npxG",
+            "Expected_3_xAG"
+        ]
+        
+        df = df_old[cols].copy()
+        
+        colnames = [
+            "Team",
+            "Season",
+            "Matches Played",
+            "Goals",
+            "Assists",
+            "G+A",
+            "Penalties scored",
+            "Yellow Cards",
+            "Red Cards",
+            "xG",
+            "Non-penalty xG",
+            "xG-Assisted Goals",
+        ]
+
+        col_to_name = dict(zip(cols, colnames))
+        df = df.rename(col_to_name, axis=1)
+        df = df.drop('Team',axis=1)
+        #https://logos-world.net/premier-league-team-logos-top-epl-logos/   
+        #https://www.iconarchive.com/show/english-football-club-icons-by-giannis-zographos.1.html
+        
+        flag_paths = list(Path("logos").glob("*.png"))
+        country_to_flagpath = {str(p.stem): str(p) for p in flag_paths}
+        #df.insert(0, "Flag", df["Team"].apply(lambda x: country_to_flagpath.get(x)).fillna("XYZ"))
+        df['Season'] = df['Season'].astype('str')
+        df = df.set_index("Season")
+        country_to_flagpath = {str(p.stem): str(p) for p in flag_paths}
+        #df = df.set_index("Team")
+        numeric_cols = list(df.columns[1:])
+        df[numeric_cols] = df[numeric_cols].apply(pd.to_numeric , errors = 'coerce')
+        
+        actual_cols = list(df.columns[1:7])
+        expected_cols = list(df.columns[7:])
+        
+        return actual_cols, expected_cols , df, country_to_flagpath
+        
+
+def tableViz(actual_cols, expected_cols,df):    
     
     cmap = LinearSegmentedColormap.from_list(
     name="bugw", colors=["#ffffff", "#f2fbd2", "#c9ecb4", "#93d3ab", "#35b0ab"], N=256,
     )
-    
-    actual_cols = list(df.columns[2:8])
-    expected_cols = list(df.columns[8:])
-    
     
     col_defs = (
     [
@@ -171,8 +247,33 @@ def tableViz(df_old):
     #fig.savefig("pl_standard.png", facecolor=ax.get_facecolor(), dpi=200)
 
 if __name__ == "__main__":
-    df = webScraper.pl_all("standard")    
-    tableViz(df)
+       
+    select_event = st.sidebar.selectbox('I want to see more',
+                                    ['Season-wise stats' ,'Team-wise stats for each season'])
+    if select_event == 'Season-wise stats':       
+        eventType = 0
+        season = st.sidebar.selectbox('Choose a season',
+                                      footballSeasons())
+        st.title(season + " season team stats")
+        df = loadData(season)
+        actual_cols,expected_cols,new_df,country_flag = createDataframe(df, season, eventType)
+        tableViz(actual_cols,expected_cols,new_df)        
+    elif select_event == 'Team-wise stats for each season':
+        eventType = 1
+        team = st.sidebar.selectbox('Teams',
+                                      ['Arsenal','Aston Villa','Brighton'])
+        st.title(team)
+        seasons = footballSeasons()
+        all_df = []
+        for season in seasons:
+            df = loadData(season)
+            all_df.append(df)        
+        all_df = pd.concat(all_df)
+        all_df = all_df[all_df._0_Squad == team]
+        actual_cols,expected_cols,new_df,country_flag = createDataframe(all_df, season, eventType)
+        tableViz(actual_cols,expected_cols,new_df)        
+           
+    
     
 
 

@@ -60,16 +60,6 @@ def getTable(squadStat,mainSoup,idDict):
     df = pd.DataFrame(data,columns=columnList)
     return df
 
-teamIdDict = {"standard" : "stats_squads_standard_for" , "keeper" : "stats_squads_keeper_for",
-          "shooting" : "stats_squads_shooting_for" , "passing" : "stats_squads_passing_for" ,
-          "possession" : "stats_squads_possession_for" , "gca" : "stats_squads_gca_for",
-          "defense" : "stats_squads_defense_for"}
-playerIdDict = {"standard" : "stats_standard_10728" , "keeper" : "stats_keeper_10728",
-          "shooting" : "stats_shooting_10728" , "passing" : "stats_passing_10728" ,
-          "possession" : "stats_possession_10728" , "gca" : "stats_gca_10728",
-          "defense" : "stats_defense_10728"}
-teamSoup = getSoup('https://fbref.com/en/comps/9/Premier-League-Stats')
-playerSoup = getSoup('https://fbref.com/en/comps/9/Premier-League-Stats#all_stats_shooting')
 
 ################################################################################
 
@@ -84,7 +74,21 @@ playerSoup = getSoup('https://fbref.com/en/comps/9/Premier-League-Stats#all_stat
 
 #################################################################################
 
-def pl_all(stat):
+def pl_all(stat,season):
+    teamIdDict = {"standard" : "stats_squads_standard_for" , "keeper" : "stats_squads_keeper_for",
+              "shooting" : "stats_squads_shooting_for" , "passing" : "stats_squads_passing_for" ,
+              "possession" : "stats_squads_possession_for" , "gca" : "stats_squads_gca_for",
+              "defense" : "stats_squads_defense_for"}
+    playerIdDict = {"standard" : "stats_standard_10728" , "keeper" : "stats_keeper_10728",
+              "shooting" : "stats_shooting_10728" , "passing" : "stats_passing_10728" ,
+              "possession" : "stats_possession_10728" , "gca" : "stats_gca_10728",
+              "defense" : "stats_defense_10728"}
+    if season == '2023-2024':
+         teamSoup = getSoup('https://fbref.com/en/comps/9/Premier-League-Stats')
+    else:
+         teamSoup = getSoup('https://fbref.com/en/comps/9/'+ season + '/' + season + '-Premier-League-Stats')
+    playerSoup = getSoup('https://fbref.com/en/comps/9/Premier-League-Stats#all_stats_shooting')
+
     return getTable(stat, teamSoup, teamIdDict)
 
 # teamList=[]
