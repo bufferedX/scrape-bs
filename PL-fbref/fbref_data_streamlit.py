@@ -267,11 +267,17 @@ if __name__ == "__main__":
             df = loadData(season)
             all_df.append(df)               
         all_df = pd.concat(all_df)
+        teamList = all_df._0_Squad.unique().tolist()
+        teamList.sort()
         team = st.sidebar.selectbox('Teams',
-                                      all_df._0_Squad.unique().tolist())
-        st.title(team)
+                                      teamList)
+        
+        
         all_df = all_df[all_df._0_Squad == team]
         actual_cols,expected_cols,new_df,country_flag = createDataframe(all_df, season, eventType)
+        left_co, cent_co,last_co = st.columns(3)
+        with cent_co:
+            st.image(country_flag.get(team),width=200)
         tableViz(actual_cols,expected_cols,new_df)        
            
     
