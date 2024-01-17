@@ -228,7 +228,7 @@ def tableViz(actual_cols, expected_cols,df):
     plt.rcParams["savefig.bbox"] = "tight"
 
 
-    fig, ax = plt.subplots(figsize=(20, 22))
+    fig, ax = plt.subplots(figsize=(20, 5 if df.shape[0]  in [1,2,3,4] else 15))
 
     table = Table(
         df,
@@ -260,15 +260,16 @@ if __name__ == "__main__":
         tableViz(actual_cols,expected_cols,new_df)        
     elif select_event == 'Team-wise stats for each season':
         eventType = 1
-        team = st.sidebar.selectbox('Teams',
-                                      ['Arsenal','Aston Villa','Brighton'])
-        st.title(team)
+        
         seasons = footballSeasons()
         all_df = []
         for season in seasons:
             df = loadData(season)
-            all_df.append(df)        
+            all_df.append(df)               
         all_df = pd.concat(all_df)
+        team = st.sidebar.selectbox('Teams',
+                                      all_df._0_Squad.unique().tolist())
+        st.title(team)
         all_df = all_df[all_df._0_Squad == team]
         actual_cols,expected_cols,new_df,country_flag = createDataframe(all_df, season, eventType)
         tableViz(actual_cols,expected_cols,new_df)        
